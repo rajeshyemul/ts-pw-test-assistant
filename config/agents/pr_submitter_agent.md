@@ -63,3 +63,4 @@ The output of this agent consists strictly of the PR submission report:
 > 🛑 **STOP Boundary**:
 > ❌ Does NOT auto-merge code into `master`  
 > ❌ Does NOT bypass pull request review policies  
+

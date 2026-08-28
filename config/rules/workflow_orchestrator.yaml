@@ -18,3 +18,4 @@ quality_gates:
   gate_3_quality_check: e2e_quality_check_agent must report 0 type-check and lint errors.
   gate_4_executor_cross_check: e2e_test_executor_agent downgrades verdict if validation flags AMBIGUOUS or PARTIALLY_COVERED.
   gate_5_pr_precondition: pr_submitter_agent halts if final_test_generation_report.md is BLOCKED or FAILED.
+

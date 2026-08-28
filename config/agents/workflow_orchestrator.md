@@ -54,3 +54,4 @@ When invoked with a JIRA issue key (e.g. `APP-2`):
 ## Output Contract
 
 Unified multi-agent execution output presenting `final_test_generation_report.md` and `pr_submission_report.md` to the user.
+

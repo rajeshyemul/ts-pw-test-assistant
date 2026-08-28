@@ -4,22 +4,22 @@
 **Component:** `admin`  
 **Feature:** Admin User Login & Authentication  
 **Generated At:** 2026-08-28  
-**Overall Pipeline Status:** **`PASSED`**  
+**Overall Pipeline Status:** **`PASSED WITH WARNINGS`** (Enforced under Rule R1)  
 
 ---
 
 ## 1. Executive Summary & Pipeline Status Header
 
-The complete AI test generation pipeline executed successfully for **`APP-2`**. All 3 Acceptance Criteria (`AC1`, `AC2`, `AC3`) were mapped to E2E test scenarios, generated as Playwright TypeScript code, validated against type-checking and ESLint standards, and verified live against the target web application.
+The AI test generation pipeline executed for **`APP-2`**. All 3 Acceptance Criteria (`AC1`, `AC2`, `AC3`) were generated as Playwright TypeScript code and passed live Playwright execution. However, in compliance with **Rule R1 (Strict Status Synthesis)**, the overall pipeline status is downgraded to **`PASSED WITH WARNINGS`** because `e2e_validation_agent` flagged scenario `TC-APP-2-002` as `AMBIGUOUS — NEEDS HUMAN REVIEW`.
 
 ---
 
 ## 2. Requirements & Acceptance Criteria Coverage Summary
 
-| Requirement / AC | AC Summary Description | Target Test ID | Spec File | Status | Live Execution |
+| Requirement / AC | AC Summary Description | Target Test ID | Spec File | Status | Live Execution Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **AC1** | Valid admin login (`admin` / `password`) | `TC-APP-2-001` | `tests/admin/APP-2.spec.ts` | **`COVERED`** | **PASSED** (3.4s) |
-| **AC2** | Invalid credentials display error banner feedback | `TC-APP-2-002` | `tests/admin/APP-2.spec.ts` | **`COVERED`** | **PASSED** (3.5s) |
+| **AC2** | Invalid credentials display error banner feedback | `TC-APP-2-002` | `tests/admin/APP-2.spec.ts` | **`PARTIALLY VERIFIED (FLAGGED AMBIGUOUS)`** | **PASSED** (3.5s) |
 | **AC3** | Successful login redirects to `/admin/#/rooms` portal | `TC-APP-2-001` | `tests/admin/APP-2.spec.ts` | **`COVERED`** | **PASSED** (3.4s) |
 
 - **Acceptance Criteria Coverage**: **100% (3 / 3 ACs)**
@@ -27,14 +27,15 @@ The complete AI test generation pipeline executed successfully for **`APP-2`**. 
 
 ---
 
-## 3. Validation & Quality Audit Summary
+## 3. Validation & Framework Gap Audit Summary
 
 - **Type-Check Status (`npm run type-check`)**: **PASSED (0 Errors)**
 - **ESLint Status (`npm run lint`)**: **PASSED (0 Errors)**
-- **Validation Agent Evidence Citation (`e2e_validation_output.md`)**:
-  - `TC-APP-2-001` → Cited [`tests/admin/APP-2.spec.ts:18`](file:///Users/rajesh.yemul/ts-pw-test-assistant/tests/admin/APP-2.spec.ts#L18) (`verifyPageLoaded()`)
-  - `TC-APP-2-002` → Cited [`tests/admin/APP-2.spec.ts:26`](file:///Users/rajesh.yemul/ts-pw-test-assistant/tests/admin/APP-2.spec.ts#L26) & [`src/pages/adminLoginPage.ts:94`](file:///Users/rajesh.yemul/ts-pw-test-assistant/src/pages/adminLoginPage.ts#L94)
-- **Framework Gap Status**: No framework gaps detected.
+- **Validation Agent Audit (`e2e_validation_output.md`)**:
+  - `TC-APP-2-001` → **`COVERED`** (Cited [`tests/admin/APP-2.spec.ts:18`](file:///Users/rajesh.yemul/ts-pw-test-assistant/tests/admin/APP-2.spec.ts#L18))
+  - `TC-APP-2-002` → **`AMBIGUOUS — NEEDS HUMAN REVIEW`**
+    - **Citation**: [`tests/admin/APP-2.spec.ts:25`](file:///Users/rajesh.yemul/ts-pw-test-assistant/tests/admin/APP-2.spec.ts#L25) / [`src/pages/adminLoginPage.ts:94`](file:///Users/rajesh.yemul/ts-pw-test-assistant/src/pages/adminLoginPage.ts#L94)
+    - **Audit Evidence**: Assertion at `adminLoginPage.ts:94` checks element visibility on composite/broad locator `ERROR_BANNER` (`.alert, div.alert, [role='alert']`) without asserting explicit text content (`/invalid credentials/i`). Rule V2 and Rule R1 halt automatic greenlighting.
 
 ---
 
@@ -50,4 +51,8 @@ The complete AI test generation pipeline executed successfully for **`APP-2`**. 
 
 ## 5. Action Items for Human Reviewers
 
-- **Zero Action Items Required**: Both positive and negative test paths executed cleanly and passed live ground-truth assertions. Ready for pull request submission!
+> ⚠️ **ACTION REQUIRED BEFORE PR SUBMISSION**:
+> 1. **Resolve Ambiguous Assertion in `TC-APP-2-002`**:
+>    In `src/pages/adminLoginPage.ts:94`, update `verifyInvalidCredentialsErrorVisible()` to add explicit text matching:
+>    `await this.expectUtils.expectElementToContainText(AdminLoginPageLocators.ERROR_BANNER, "error banner", /invalid credentials/i);`
+> 2. **PR Submitter Gate**: `pr_submitter_agent` will **HOLD** pull request submission until this ambiguity is reviewed and resolved by a human engineer.

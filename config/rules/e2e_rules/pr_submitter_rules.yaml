@@ -15,3 +15,4 @@ preconditions:
     - FAILED
 
 output_artifact: test_artifacts/{component}/{jira_issue_key}/phases/pr_submission_report.md
+

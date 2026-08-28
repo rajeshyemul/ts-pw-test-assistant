@@ -1,10 +1,15 @@
-# Test Report Generation Rules & Synthesis Guidelines
+# Test Report Generation Rules & Synthesis Guidelines (Rule R1 Evidence-Based Synthesis)
 
 framework_name: Playwright TypeScript Framework
 
+rules:
+  R1_strict_status_synthesis:
+    rule: If e2e_validation_output.md contains ANY scenario classified as AMBIGUOUS — NEEDS HUMAN REVIEW or PARTIALLY_COVERED, the overall report status MUST be downgraded to PASSED_WITH_WARNINGS.
+    enforcement: The report MUST NOT claim "Zero Action Items Required" or "Ready for PR Submission". It MUST list the ambiguity/partially-covered flag in Action Items.
+
 status_determination:
-  PASSED: All ACs covered, 0 framework gaps, live execution passed with 0 validation flags.
-  PASSED_WITH_WARNINGS: Live execution passed, but e2e_validation_output.md flagged AMBIGUOUS or PARTIALLY_COVERED scenarios.
+  PASSED: All ACs covered, 0 framework gaps, live execution passed, AND 0 AMBIGUOUS or PARTIALLY_COVERED validation flags exist in e2e_validation_output.md.
+  PASSED_WITH_WARNINGS: Live execution passed, BUT e2e_validation_output.md contains 1 or more AMBIGUOUS or PARTIALLY_COVERED scenario flags.
   BLOCKED: Generation halted due to framework_gap_report.md.
   FAILED: Live Playwright test execution failed.
 
