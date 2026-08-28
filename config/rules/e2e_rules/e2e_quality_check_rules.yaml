@@ -1,0 +1,22 @@
+# E2E Quality Check Rules (TypeScript, ESLint & Semantic Integrity)
+
+framework_name: Playwright TypeScript Framework
+
+quality_check_rules:
+  type_check:
+    command: npm run type-check
+    tool: tsc --noEmit
+    target: Zero TypeScript errors (TS2339, TS2304, etc.)
+  lint_check:
+    command: npm run lint
+    tool: eslint . --ext .ts
+    target: Zero ESLint errors or warnings across project and generated spec files.
+    custom_rules:
+      - preventDuplicateTitles: Ensures test describe and test titles are globally unique.
+      - noDuplicateTags: Ensures tags (@smoke, @P1) are not duplicated in titles.
+      - noUnusedConstants: Ensures unused constants/variables are removed.
+      - noInternalActionImports: Ensures internal action imports are not accessed directly.
+  semantic_integrity_check:
+    rule: Verify every generated test block (test(...)) contains explicit action and assertion logic matching its AC intent.
+    prohibition: Flag any test whose body only performs setup/navigation without exercising target assertions.
+  iterative_fix_max_iterations: 3

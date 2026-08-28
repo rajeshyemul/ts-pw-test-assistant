@@ -1,0 +1,11 @@
+node_modules
+dist
+.DS_Store
+test-results
+playwright-report
+allure-results
+allure-report
+flaky-report
+reports
+output
+.env

@@ -1,0 +1,20 @@
+{
+  "jira_issue_key": "APP-2",
+  "summary": "Admin User Login & Authentication",
+  "component": "admin",
+  "issue_type": "Story",
+  "priority": "Medium",
+  "status": "To Do",
+  "description": "As a hotel administrator, I want to log into the admin portal using my credentials so that I can securely manage hotel rooms and bookings.",
+  "acceptance_criteria": [
+    "AC1: Admin user can log in with valid username \"admin\" and password \"password\"",
+    "AC2: Invalid credentials display an error banner \"Invalid credentials\"",
+    "AC3: Successful login redirects admin user to the /admin/#/rooms portal"
+  ],
+  "affected_components": [
+    "adminLoginPage",
+    "BookingAdminLoginPageLocators"
+  ],
+  "comments": [],
+  "extracted_at": "2026-08-27T15:25:15.099Z"
+}

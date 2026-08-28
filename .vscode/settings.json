@@ -1,0 +1,9 @@
+{
+  "cSpell.words": ["domcontentloaded"],
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "coda.advancedSettings": {
+    "backendPort": 54114,
+    "headersTimeout": 0,
+    "bodyTimeout": 0
+  }
+}

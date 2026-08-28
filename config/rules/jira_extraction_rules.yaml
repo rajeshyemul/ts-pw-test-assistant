@@ -1,0 +1,29 @@
+# Rules for JIRA Ticket Data Extraction & Normalization
+
+extraction_rules:
+  - rule_id: EXTRACT_001
+    name: Mandatory Field Extraction
+    description: Always extract issue_key, summary, description, and component.
+    mandatory_fields:
+      - jira_issue_key
+      - summary
+      - description
+      - component
+
+  - rule_id: EXTRACT_002
+    name: Component Normalization
+    description: If component is missing or empty, infer from project key or default to "general".
+    default_component: general
+
+  - rule_id: EXTRACT_003
+    name: Text Sanitization
+    description: Strip HTML formatting tags (e.g. <p>, <div>, <br>) and convert Jira markup (h1, h2, code blocks) to standard Markdown.
+
+  - rule_id: EXTRACT_004
+    name: Acceptance Criteria Identification
+    description: Look for sections titled "Acceptance Criteria", "Given/When/Then", or bullet points starting with "AC:" in description/comments. Extract into a list of strings.
+
+  - rule_id: EXTRACT_005
+    name: File Output Path
+    description: Save extracted JSON data to test_artifacts/{component}/{jira_issue_key}/phases/jira_data.json
+

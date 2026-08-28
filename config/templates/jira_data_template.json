@@ -1,0 +1,23 @@
+{
+  "jira_issue_key": "STRING",
+  "summary": "STRING",
+  "component": "STRING",
+  "issue_type": "STRING",
+  "priority": "STRING",
+  "status": "STRING",
+  "description": "STRING",
+  "acceptance_criteria": [
+    "STRING"
+  ],
+  "affected_components": [
+    "STRING"
+  ],
+  "comments": [
+    {
+      "author": "STRING",
+      "body": "STRING"
+    }
+  ],
+  "extracted_at": "STRING"
+}
+

@@ -1,0 +1,22 @@
+# E2E Validation Rules (Multi-Signal Search & Classification)
+
+framework_name: Playwright TypeScript Framework
+
+multi_signal_search:
+  signals:
+    - JIRA_KEY: Search tests/ for issue key (e.g. APP-2)
+    - TEST_CASE_ID: Search tests/ for Test IDs (e.g. TC-APP-2-001)
+    - SCENARIO_KEYWORDS: Search tests/ for action keywords (e.g. login, valid credentials, redirect)
+    - PAGE_OBJECT_TERMINOLOGY: Search tests/ for Page Object names (e.g. AdminLoginPage, AdminRoomsPage)
+    - FEATURE_TERMINOLOGY: Search tests/ for feature names
+
+coverage_classification_states:
+  - state: COVERED
+    criteria: Existing test genuinely covers the scenario, steps, and assertions completely.
+  - state: PARTIALLY_COVERED
+    criteria: Existing test covers part of the scenario but misses specific assertions/conditions.
+  - state: NOT_COVERED
+    criteria: No meaningful existing test found for the scenario.
+
+output_artifact: test_artifacts/{component}/{jira_issue_key}/phases/e2e_validation_output.md
+

@@ -1,0 +1,25 @@
+{
+  "jira_issue_key": "APP-1",
+  "summary": "Admin Room Management and Inventory Verification",
+  "component": "admin",
+  "issue_type": "Story",
+  "priority": "High",
+  "status": "In Progress",
+  "description": "As an admin user, I need to log into the admin portal and manage hotel room inventory. The admin room management page should show the login form, authenticate admin credentials, and display room inventory populated with existing rooms.",
+  "acceptance_criteria": [
+    "AC 1: Navigating to admin login shows the admin login form with username and password fields.",
+    "AC 2: Logging in as admin opens room management page.",
+    "AC 3: Room management page displays header and populates room inventory list."
+  ],
+  "affected_components": [
+    "admin-login",
+    "admin-rooms"
+  ],
+  "comments": [
+    {
+      "author": "QE Lead",
+      "body": "Ensure smoke tag @smoke is added for critical path tests."
+    }
+  ],
+  "extracted_at": "2026-08-27T06:05:40.520Z"
+}

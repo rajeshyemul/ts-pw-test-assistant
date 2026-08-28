@@ -1,0 +1,19 @@
+# E2E Test Case Guidelines (Playwright TypeScript Framework)
+
+framework_name: Playwright TypeScript Framework
+
+code_generation_rules:
+  critical_rules:
+    - Rule 1: Use Playwright test fixtures from @fixtures/UiFixture (import { test } from "@fixtures/UiFixture";).
+    - Rule 2: Import Page Objects from @pages/* (e.g. import { AdminLoginPage } from "@pages/adminLoginPage";).
+    - Rule 3: Initialize Page Objects inside test.beforeEach(async ({ actions }) => { ... }).
+    - Rule 4: Add descriptive tags to test titles (@smoke, @regression, @P1, @P2, and JIRA key e.g. @APP-2).
+    - Rule 5: Incorporate AllureReporter step reporting (AllureReporter.step) and details metadata when available.
+    - Rule 6: Reuse existing Page Objects and fixture capabilities; do NOT invent unnecessary abstractions.
+    - Rule 7 (SEMANTIC ASSERTION ENFORCEMENT): Every generated test MUST contain explicit, non-empty action steps and target assertions derived directly from its AC targets. A test MUST NOT consist solely of page navigation or setup steps matching another test.
+    - Rule 8 (NEGATIVE PATH ASSERTION): For negative path scenarios (e.g. invalid credentials, validation errors), the test body MUST perform the invalid input submission and assert on the resulting error banner/message (e.g. loginWithInvalidCredentials + verifyInvalidCredentialsErrorVisible).
+
+structure_conventions:
+  test_suite_wrapper: test.describe("Feature Title (JIRA_KEY)", () => { ... })
+  test_case_wrapper: test("Scenario Title @tags", async ({ page }) => { ... })
+  preconditions: Verify URL readiness or Page Object visibility before submitting credentials.

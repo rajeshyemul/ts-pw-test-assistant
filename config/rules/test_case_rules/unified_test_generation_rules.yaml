@@ -1,0 +1,76 @@
+# Unified Test Case Generation Rules
+
+framework_name: Playwright TypeScript Framework
+
+core_problem_identification:
+  primary_rule: Identify single technical root cause from JIRA inputs, and design minimal, decisive validation.
+  mandatory_rules:
+    - Order of Execution: Core Problem -> 4 Thinking Phases -> Framework Discovery -> Test Case Specification.
+    - Focus: Validate end-to-end user value delivery, not isolated subroutines.
+
+thinking_phases:
+  phase_1_ecosystem_contextualization:
+    description: Map JIRA technical components to user-accessible UI flows.
+    questions:
+      - How do real users encounter this issue in production?
+      - Is this a user-facing page operation or part of a multi-step user journey?
+    output: Complete mapping of JIRA technical component -> user journey.
+
+  phase_2_user_reality_immersion:
+    description: Define realistic operational contexts, user scale, and environmental constraints.
+    questions:
+      - Who is the target user? (Admin, Guest, Operator, End-User)
+      - What environmental constraints or preconditions are required?
+    output: Test scenarios mirroring authentic user operation environments.
+
+  phase_3_systemic_integration_analysis:
+    description: Analyze component interaction, data flow, and perform dynamic framework discovery.
+    discovery_rules:
+      - Scan src/pages/ to discover available Page Objects and public methods dynamically.
+      - Scan src/fixtures/ (UiFixture.ts) to discover available custom test fixtures and action helpers.
+      - Scan tests/ to discover existing test conventions, tag patterns (@smoke, @P1), and Allure hooks.
+    output: Mapping of acceptance criteria to discovered framework Page Objects and methods.
+
+  phase_4_value_delivery:
+    description: Formulate quantitative, measurable pass/fail criteria.
+    questions:
+      - What observable artifact or state transition proves success vs failure?
+      - What numerical/binary criterion determines pass/fail?
+    output: Quantitative, measurable criteria for successful functionality.
+
+technical_validation_types:
+  - type: A_State
+    when_to_use: Incorrect state, label, or element content
+    approach: Assert actual UI text/state vs expected (e.g. expectElementToHaveText)
+  - type: B_Absence
+    when_to_use: Unwanted error message or modal
+    approach: Verify element or error alert is not present / hidden
+  - type: C_Progression
+    when_to_use: Navigation or page redirect
+    approach: Monitor page URL transitions (e.g. waitForNavigation(/\/admin\/rooms/))
+  - type: D_Stability
+    when_to_use: Dynamic rendering or slow network loading
+    approach: Assert visibility with explicit wait timeouts
+  - type: E_Frequency
+    when_to_use: Multi-item lists or inventory counts
+    approach: Count occurrences and assert list length
+
+playwright_specification_rules:
+  tagging_conventions:
+    - Use @smoke for critical path P1 scenarios.
+    - Use @regression for comprehensive coverage scenarios.
+    - Use @P1 for high-priority stories, @P2 for medium-priority stories.
+    - Include JIRA key tag (e.g. @APP-2).
+  framework_mapping:
+    - Do NOT hard-code method names into generic rules.
+    - Map test steps dynamically to discovered Page Objects in src/pages/.
+    - Specify setup steps using @fixtures/UiFixture actions and Page Object constructors.
+
+output_requirements:
+  target_file: test_artifacts/{component}/{jira_issue_key}/test_cases/{jira_issue_key}_test_cases.md
+  matrix_file: test_artifacts/{component}/{jira_issue_key}/test_coverage_matrix.md
+  sections:
+    - Scenario Overview Table (Test ID, Title, Priority, Type, AC Target)
+    - Detailed Test Cases (Test ID, Tags, Preconditions, Setup, Actions, Expected Outcomes)
+    - Target Page Objects Discovered
+
