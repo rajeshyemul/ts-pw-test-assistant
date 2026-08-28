@@ -21,53 +21,70 @@ Instead, AI operates **on top of a stable Playwright + TypeScript framework**, u
 
 ## What This Project Does
 
-The current implementation provides an AI-assisted test-generation pipeline:
+The current implementation provides a complete, 5-phase multi-agent test-generation and validation pipeline:
 
 ```text
 JIRA Ticket
     │
     ▼
-Requirement Extraction
+Step 1: JIRA Requirement Extraction Agent (jira_extractor)
     │
     ├── jira_data.json
     └── test_requirements_output.md
     │
     ▼
-Test Case Generation Agent
+Step 2: Test Case Generation Agent (test_case_generation)
     │
-    ├── Test Case Specification
-    └── Test Coverage Matrix
-    │
-    ▼
-E2E Test Code Generation Agent
-    │
-    ├── Discover existing Playwright framework
-    ├── Discover Page Objects
-    ├── Discover fixtures and framework capabilities
-    └── Generate Playwright TypeScript
+    ├── Test Case Specification ({jira_issue_key}_test_cases.md)
+    └── Test Coverage Matrix (test_coverage_matrix.md)
     │
     ▼
-E2E Quality Check
+Step 3.1: E2E Validation Agent (e2e_validation_agent)
     │
-    ├── Semantic assertion validation
-    ├── TypeScript type-check
-    └── ESLint validation
+    ├── Multi-Signal Search across tests/
+    ├── Rule V1 Line-Level Assertion Evidence Citations
+    └── Rule V2 Subtlety Audit (AMBIGUOUS flag for broad locators)
     │
     ▼
-Executable Playwright Test
+Step 3.2: E2E Code Generation Agent (e2e_code_generation_agent)
+    │
+    ├── Step 0 Validation Coverage Gate (Skips COVERED, Halts AMBIGUOUS)
+    ├── Rule 9 Framework Gap Contract (Halts & emits framework_gap_report.md if Page Objects lack methods)
+    └── Generates Playwright TypeScript (.spec.ts)
+    │
+    ▼
+Step 3.3: E2E Quality Check Agent (e2e_quality_check_agent)
+    │
+    ├── TypeScript Strict Validation (tsc --noEmit)
+    └── Custom ESLint Rule Validation (eslint . --ext .ts)
+    │
+    ▼
+Step 3.4: E2E Test Executor Agent (e2e_test_executor_agent)
+    │
+    ├── Headless Live Execution against Target App
+    ├── Step 0 Validation Flag Cross-Check (Downgrades verdict for AMBIGUOUS flags)
+    └── Anti-False-Positive Sanity Audit (Assertions > 0, Duration > 50ms, Negative Step Logs)
+    │
+    ▼
+Step 4: Report Generation Agent (report_generation_agent)
+    │
+    └── Rule R1 Strict Status Synthesis (Escalates warnings to PASSED WITH WARNINGS)
+    │
+    ▼
+Step 5: PR Submitter Agent (pr_submitter_agent)
+    │
+    └── DevOps Gate Hold (Refuses PR submission if status is BLOCKED, FAILED, or HAS WARNINGS)
 ```
-
-The current implementation has been validated using a complete `APP-2` generation cycle from a clean state.
 
 ---
 
-# Current Capabilities
+# Current Implemented Capabilities
 
-## 1. JIRA Requirement Extraction
+## 1. JIRA Requirement Extraction (`jira_extractor`)
 
-The workflow can retrieve a JIRA issue and create a structured requirement payload.
+The workflow retrieves JIRA issues directly via Atlassian JIRA Cloud REST API and produces structured requirement payloads.
 
-Example:
+Example artifact structure:
 
 ```text
 test_artifacts/
@@ -78,24 +95,16 @@ test_artifacts/
             └── test_requirements_output.md
 ```
 
-The extracted information can include:
-
-* JIRA issue key
-* summary
-* issue type
-* priority
-* status
-* description
-* acceptance criteria
-* affected components
-
-The JIRA data becomes the input to the downstream test-generation workflow.
+Extracted data includes:
+* JIRA issue key, summary, issue type, priority, and status
+* Description and Acceptance Criteria (AC1, AC2, AC3)
+* Affected components and target Page Objects
 
 ---
 
-## 2. AI Test Case Generation
+## 2. AI Test Case Generation (`test_case_generation`)
 
-The `test_case_generation` agent converts the requirement analysis into structured test cases.
+Converts requirement analysis into structured test cases and a traceability coverage matrix.
 
 Output:
 
@@ -105,282 +114,133 @@ test_artifacts/
     └── APP-2/
         ├── test_cases/
         │   └── APP-2_test_cases.md
-        │
         └── test_coverage_matrix.md
 ```
 
-The generated test cases contain information such as:
-
-* Test Case ID
-* Test title
-* Scenario description
-* Priority
-* Test tags
-* Preconditions
-* Test steps
-* Expected results
-* Acceptance-criteria mapping
-* Framework capability mapping
-
-The test-generation process follows the four-phase thinking framework used by the reference agentic test-generation solution:
-
+Follows four-phase thinking:
 1. **Ecosystem Contextualization**
 2. **User Reality**
 3. **System Integration**
 4. **Value Delivery**
 
-The purpose is to prevent the AI from generating tests based only on the happy-path interpretation of a requirement.
+---
+
+## 3. E2E Test Validation & Subtlety Audit (`e2e_validation_agent`)
+
+Performs multi-signal search across `tests/` and classifies scenario coverage into `COVERED`, `PARTIALLY_COVERED`, `NOT_COVERED`, or `AMBIGUOUS`.
+
+Key Contracts:
+* **Rule V1 (Evidence Citation)**: Every classification MUST cite exact `{file}:{line}` for both matched test and assertion evaluated. Uncited classifications are downgraded to `NOT_COVERED`.
+* **Rule V2 (Subtlety Audit)**: Broad or composite locators lacking explicit text assertions are marked `AMBIGUOUS — NEEDS HUMAN REVIEW` rather than being silently greenlit.
 
 ---
 
-# 3. Framework-Aware Playwright Test Generation
+## 4. Framework-Aware Code Generation & Gap Detection (`e2e_code_generation_agent`)
 
-The E2E code-generation agent consumes the generated test cases and creates executable Playwright TypeScript tests.
+Transforms cleared specifications into production-ready Playwright TypeScript specs (`tests/{component}/{jira_issue_key}.spec.ts`).
 
-The important design principle is:
-
-> **The AI discovers the existing automation framework instead of inventing a new one.**
-
-Before generating a test, the agent can inspect:
-
-```text
-src/
-├── pages/
-├── fixtures/
-├── support/
-│   └── locators/
-├── helper/
-└── utils/
-
-tests/
-```
-
-This allows generated tests to reuse existing:
-
-* Page Objects
-* Page Object methods
-* fixtures
-* browser actions
-* assertion utilities
-* locators
-* reporting conventions
-* test tags
-* framework patterns
-
-For example, a generated test can use:
-
-```typescript
-import { test } from "@fixtures/UiFixture";
-import { AdminLoginPage } from "@pages/adminLoginPage";
-```
-
-rather than creating low-level Playwright interactions directly inside the test.
+Key Contracts:
+* **Step 0 Coverage Gate**: Requires `e2e_validation_output.md` before generating code. Skips `COVERED` scenarios; halts for `AMBIGUOUS` scenarios.
+* **Rule 9 (Framework Gap Contract)**: If Page Objects in `src/pages/` lack required methods/locators, code generation **HALTS IMMEDIATELY** and emits `framework_gap_report.md` detailing missing methods instead of guessing selectors.
 
 ---
 
-# 4. Semantic Test Validation
+## 5. Automated Quality Check (`e2e_quality_check_agent`)
 
-A test that compiles is not necessarily a useful test.
-
-The project therefore includes explicit rules to prevent content-free test generation.
-
-For example, a negative-path scenario should not simply do:
-
-```typescript
-await adminLoginPage.navigate();
-await adminLoginPage.verifyLoginFormVisible();
-```
-
-when the requirement is to validate invalid credentials.
-
-The generated test must actually exercise the target behaviour:
-
-```typescript
-await adminLoginPage.navigate();
-await adminLoginPage.verifyLoginFormVisible();
-await adminLoginPage.loginWithInvalidCredentials(
-  "invalidUser",
-  "wrongPassword",
-);
-await adminLoginPage.verifyInvalidCredentialsErrorVisible();
-```
-
-The E2E generation rules therefore enforce:
-
-* target actions must be executed
-* meaningful assertions must be present
-* negative scenarios must use invalid inputs
-* expected error states must be verified
-* setup/navigation alone is not considered sufficient coverage
-
-This is an important part of the project's Agentic QE approach.
-
----
-
-# 5. Automated Code Quality Validation
-
-Generated Playwright code is passed through the existing project quality gates.
+Verifies generated Playwright code against repository quality standards:
 
 ```bash
-npm run type-check
-npm run lint
+npm run type-check   # 0 TypeScript compilation errors
+npm run lint         # 0 ESLint errors (including custom rules)
 ```
-
-The quality-check stage verifies:
-
-```text
-Generated .spec.ts
-       │
-       ├── TypeScript validation
-       │
-       └── ESLint validation
-```
-
-If generated code contains technical issues, the quality-check process can analyse the reported errors and correct the generated test.
-
-The objective is to ensure that AI-generated code conforms to the existing repository's technical standards before it is considered ready.
 
 ---
 
-# Current End-to-End Example
+## 6. Live Test Execution & Anti-False-Positive Audit (`e2e_test_executor_agent`)
 
-The current implementation has been validated using JIRA ticket `APP-2`.
+Executes generated Playwright specs against live environments (`HEADLESS=true npx playwright test ...`).
 
-The complete generation flow was:
+Key Contracts:
+* **Step 0 Cross-Check**: Reads `e2e_validation_output.md` and downgrades verdict if `AMBIGUOUS` flags exist.
+* **Sanity Audit**: Verifies assertion counts (>0), test duration (>50ms), and negative step execution logs to eliminate false-positive passes.
 
-```text
-APP-2
- │
- ▼
-Live JIRA extraction
- │
- ▼
-jira_data.json
- │
- ▼
-Requirement analysis
- │
- ▼
-test_requirements_output.md
- │
- ▼
-AI Test Case Generation
- │
- ├── APP-2_test_cases.md
- └── test_coverage_matrix.md
- │
- ▼
-AI Playwright Code Generation
- │
- ▼
-tests/admin/APP-2.spec.ts
- │
- ▼
-Semantic validation
- │
- ▼
-npm run type-check
- │
- ▼
-npm run lint
- │
- ▼
-PASS
-```
+---
 
-The generated test contains both positive and negative authentication scenarios:
+## 7. Evidence-Based Report Synthesis (`report_generation_agent`)
 
-```typescript
-test(
-  "Successful Admin Login and Redirect to Rooms Portal @smoke @regression @P1 @APP-2",
-  async () => {
-    await adminLoginPage.navigate();
-    await adminLoginPage.verifyLoginFormVisible();
-    await adminLoginPage.loginAsAdmin();
-    await adminRoomsPage.verifyPageLoaded();
-    await adminRoomsPage.verifyRoomManagementVisible();
-  },
-);
+Aggregates all phase artifacts into `final_test_generation_report.md`.
 
-test(
-  "Invalid Admin Credentials Error Banner Validation @regression @P2 @APP-2",
-  async () => {
-    await adminLoginPage.navigate();
-    await adminLoginPage.verifyLoginFormVisible();
-    await adminLoginPage.loginWithInvalidCredentials(
-      "invalidUser",
-      "wrongPassword",
-    );
-    await adminLoginPage.verifyInvalidCredentialsErrorVisible();
-  },
-);
-```
+Key Contract:
+* **Rule R1 (Strict Status Synthesis)**: If any upstream scenario is flagged `AMBIGUOUS` or `PARTIALLY_COVERED`, overall status is **DOWNGRADED TO `PASSED WITH WARNINGS`**, and explicit human review action items are generated.
+
+---
+
+## 8. PR Submission & Release Automation (`pr_submitter_agent`)
+
+Automates git feature branch creation (`feature/{jira_issue_key}-e2e-tests`), Conventional Commit formatting, and remote push.
+
+Key Contract:
+* **DevOps Gate Hold**: Refuses execution if report status is `BLOCKED`, `FAILED`, or `PASSED_WITH_WARNINGS` with pending human action items.
 
 ---
 
 # Underlying Playwright Framework
 
-The AI layer is built on top of the existing Playwright + TypeScript framework.
-
-The framework provides the foundation for:
-
-* browser automation
-* Page Object Model
-* fixture-based dependency injection
-* reusable browser actions
-* wait handling
-* assertions
-* logging
-* screenshots
-* video
-* test reporting
-* database utilities
-
-The intended architecture remains:
+The AI layer operates on top of the existing Playwright + TypeScript framework architecture:
 
 ```text
-                 AI TEST GENERATION
-                        │
-                        ▼
-              ┌───────────────────┐
-              │ Playwright Tests  │
-              └─────────┬─────────┘
-                        │
-              ┌─────────▼─────────┐
-              │   Page Objects    │
-              └─────────┬─────────┘
-                        │
-              ┌─────────▼─────────┐
-              │ Fixtures / Helper │
-              └─────────┬─────────┘
-                        │
-              ┌─────────▼─────────┐
-              │    Playwright     │
-              └───────────────────┘
+                 AI MULTI-AGENT PIPELINE
+                         │
+                         ▼
+               ┌───────────────────┐
+               │ Playwright Tests  │
+               └─────────┬─────────┘
+                         │
+               ┌─────────▼─────────┐
+               │   Page Objects    │
+               └─────────┬─────────┘
+                         │
+               ┌─────────▼─────────┐
+               │ Fixtures / Helper │
+               └─────────┬─────────┘
+                         │
+               ┌─────────▼─────────┐
+               │    Playwright     │
+               └───────────────────┘
 ```
-
-AI is an additional layer, not a replacement for these foundations.
 
 ---
 
-# Repository Structure
+# Repository Agent Directory
 
 ```text
 ts-pw-test-assistant/
 │
 ├── config/
 │   ├── agents/
+│   │   ├── jira_extractor.md
 │   │   ├── test_case_generation.md
+│   │   ├── e2e_validation_agent.md
 │   │   ├── e2e_code_generation_agent.md
-│   │   └── e2e_quality_check_agent.md
+│   │   ├── e2e_quality_check_agent.md
+│   │   ├── e2e_test_executor_agent.md
+│   │   ├── report_generation_agent.md
+│   │   ├── pr_submitter_agent.md
+│   │   └── workflow_orchestrator.md
 │   │
 │   └── rules/
+│       ├── jira_extraction_rules.yaml
+│       ├── workflow_orchestrator.yaml
 │       ├── test_case_rules/
-│       │   └── unified_test_generation_rules.md
+│       │   └── unified_test_generation_rules.yaml
 │       │
 │       └── e2e_rules/
+│           ├── e2e_validation_rules.yaml
 │           ├── e2e_test_case_guidelines_ts_pw.yaml
-│           └── e2e_quality_check_rules.yaml
+│           ├── e2e_quality_check_rules.yaml
+│           ├── e2e_test_executor_rules.yaml
+│           ├── report_generation_rules.yaml
+│           └── pr_submitter_rules.yaml
 │
 ├── docs/
 │   └── framework-architecture.md
@@ -395,327 +255,74 @@ ts-pw-test-assistant/
 │   └── utils/
 │
 ├── tests/
-│   └── admin/
+│   ├── admin/
+│   └── home/
 │
-├── test_artifacts/
-│
-├── eslint.config.mjs
-├── package.json
-├── playwright.config.ts
-├── README.md
-└── tsconfig.json
-```
-
-> The agent and rule structure will evolve as additional stages of the reference agentic workflow are implemented.
-
----
-
-# Current Application Under Test
-
-The framework currently uses **Restful-Booker-Platform** as the reference application.
-
-```text
-UI:
-https://automationintesting.online
-
-Admin username:
-admin
-
-Admin password:
-password
+└── test_artifacts/
+    ├── admin/
+    │   ├── APP-2/
+    │   └── APP-6/
+    └── home/
+        ├── APP-5/
+        └── HOME-2/
 ```
 
 ---
 
-# Framework Usage
-
-For regular Playwright tests:
-
-```typescript
-import { test } from "@fixtures/UiFixture";
-import { HomePage } from "@pages/homePage";
-
-test("loads the public room catalog @smoke", async ({ actions }) => {
-  const homePage = new HomePage(actions);
-
-  await homePage.navigate();
-  await homePage.verifyPageLoaded();
-  await homePage.verifyRoomCatalogVisible();
-});
-```
-
-The UI fixture provides the common framework dependencies required by tests.
-
-Tests should remain focused on business workflows while Page Objects and helper classes own the implementation details.
-
----
-
-# Environment Configuration
-
-The framework uses environment variables or a local `.env` file.
-
-Common configuration:
-
-```text
-ENVIRONMENT=dev|qa|stage|prod|local
-BROWSER=chromium|firefox|webkit
-HEADLESS=true|false
-RETRIES=0|1|2
-WORKERS=1|2|...
-TEST_TIMEOUT=60000
-UI_BASE_URL=https://automationintesting.online
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=password
-LOG_LEVEL=debug|info|warn|error
-CI=true|false
-```
-
-Database configuration is required only for tests that use database utilities:
-
-```text
-DB_SERVER
-DB_PORT
-DB_NAME
-DB_USERNAME
-DB_PASSWORD
-ENVIRONMENT_SUFFIX
-```
-
----
-
-# Installation
+# Main Framework Commands
 
 ```bash
-git clone https://github.com/rajeshyemul/ts-pw-test-assistant.git
-cd ts-pw-test-assistant
-
-npm install
-npx playwright install
-```
-
----
-
-# Main Commands
-
-## Run tests
-
-```bash
+# Run regular Playwright tests
 npm test
-```
 
-## Run UI tests
-
-```bash
-npm run test:ui
-```
-
-## Run smoke tests
-
-```bash
+# Run smoke test suite
 npm run test:smoke
-```
 
-## Run headed
-
-```bash
-npm run test:headed
-```
-
-## Debug
-
-```bash
-npm run test:debug
-```
-
-## Type-check
-
-```bash
+# Run TypeScript type check
 npm run type-check
-```
 
-## Lint
-
-```bash
+# Run ESLint custom rules check
 npm run lint
-```
 
-## Run quality validation
-
-```bash
+# Run full repository validation
 npm run validate
 ```
 
-## Format
-
-```bash
-npm run format
-```
-
-## HTML report
-
-```bash
-npm run report:html
-```
-
-## Allure report
-
-```bash
-npm run report:allure
-```
-
 ---
 
-# Agentic QE Development Roadmap
-
-The repository is being developed incrementally.
-
-### Implemented
+# Implemented Multi-Agent Roadmap
 
 ```text
-JIRA Requirement Extraction
+JIRA Requirement Extraction Agent (jira_extractor.md)
         ↓
-Requirement Analysis
+Test Case Generation Agent (test_case_generation.md)
         ↓
-Test Case Generation
+E2E Test Validation Agent (e2e_validation_agent.md -- Rule V1 & Rule V2)
         ↓
-Coverage Matrix
+E2E Code Generation Agent (e2e_code_generation_agent.md -- Step 0 Gate & Rule 9)
         ↓
-Playwright Test Code Generation
+E2E Quality Check Agent (e2e_quality_check_agent.md -- TSC & ESLint)
         ↓
-Semantic Assertion Enforcement
+E2E Test Executor Agent (e2e_test_executor_agent.md -- Sanity Audit & Cross-Check)
         ↓
-TypeScript Validation
+Report Generation Agent (report_generation_agent.md -- Rule R1 Synthesis)
         ↓
-ESLint Validation
+PR Submitter Agent (pr_submitter_agent.md -- DevOps Gate)
+        ↓
+Master Workflow Orchestrator (workflow_orchestrator.md)
 ```
-
-### Planned / Under Evaluation
-
-Additional components from the reference agentic test-generation solution may be introduced after the core generation pipeline is proven:
-
-```text
-E2E Coverage Validation
-        ↓
-Test Execution Agent
-        ↓
-Execution Result Analysis
-        ↓
-Test Reporting
-        ↓
-Pull Request Automation
-        ↓
-Workflow Orchestration
-```
-
-These components are intentionally **not treated as implemented capabilities until they are built and verified**.
-
----
-
-# Design Principles
-
-## 1. AI should use the framework, not bypass it
-
-Generated tests should reuse the existing framework architecture.
-
-```text
-Good:
-
-AI
- ↓
-Existing Page Object
- ↓
-Existing helper
- ↓
-Playwright
-```
-
-Not:
-
-```text
-AI
- ↓
-raw locators everywhere
- ↓
-duplicated browser logic
-```
-
-## 2. Generated code must be meaningful
-
-Compilation is necessary but not sufficient.
-
-A generated test must exercise the behaviour described by the requirement and contain meaningful assertions.
-
-## 3. Framework discovery should be dynamic
-
-The AI should inspect the repository rather than assuming specific Page Objects or methods.
-
-This makes the approach applicable as the framework grows.
-
-## 4. Keep responsibilities separated
-
-```text
-Requirement Agent
-        ↓
-Test Case Agent
-        ↓
-Code Generation Agent
-        ↓
-Quality Check
-        ↓
-Execution
-```
-
-Each stage has a defined responsibility and produces an identifiable artifact.
-
-## 5. Build incrementally
-
-Every stage should be independently verified before additional agents are introduced.
-
-The project intentionally avoids adding an agent simply because the reference implementation contains one. Each component must provide a clear benefit to the Playwright + TypeScript workflow.
-
----
-
-# Learning Objective
-
-This repository is also an implementation laboratory for understanding the progression from traditional test automation to Agentic QE.
-
-```text
-Playwright Engineer
-       ↓
-Framework Engineer
-       ↓
-Framework Architect
-       ↓
-AI-assisted Test Automation
-       ↓
-Agentic Test Generation
-       ↓
-Agentic QE Architect
-```
-
-The goal is to understand not only how to generate tests with AI, but also **where AI should interact with a QE architecture and where it should not**.
 
 ---
 
 # Documentation
 
-Detailed framework architecture and implementation guidance:
-
-* `docs/framework-architecture.md`
-
-Agent and workflow configuration:
-
-* `config/agents/`
-* `config/rules/`
-
-Generated QE artifacts:
-
-* `test_artifacts/`
+* Framework Architecture Handbook: `docs/framework-architecture.md`
+* Agent Specifications: `config/agents/`
+* Rules Configurations: `config/rules/`
 
 ---
 
 # Repository
 
-GitHub: [rajeshyemul/ts-pw-test-assistant](https://github.com/rajeshyemul/ts-pw-test-assistant)
-
+GitHub: [rajeshyemul/ts-pw-test-assistant](https://github.com/rajeshyemul/ts-pw-test-assistant)  
 Author: **Rajesh Yemul**
