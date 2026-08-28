@@ -419,3 +419,59 @@ If `PLAYWRIGHT_BROWSERS_PATH=0` is set, install browsers into the project-local 
 ```bash
 PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install
 ```
+
+---
+
+## 15. Autonomous AI Agent Test Generation System
+
+The framework includes a multi-agent AI test generation pipeline (`config/agents/` and `config/rules/`) that transforms JIRA User Stories into verified, executable Playwright TypeScript test specs with strict quality gates and anti-false-positive audits.
+
+### Master Pipeline Sequence
+
+```text
+                                    Step 1: JIRA Extractor
+                                    (jira_extractor.md)
+                                             │
+                                             ▼
+                                 Step 2: Test Case Generator
+                                 (test_case_generation.md)
+                                             │
+                                             ▼
+                               Step 3.1: Validation Agent
+                              (e2e_validation_agent.md)
+                                             │
+                                             ▼
+                             Step 3.2: Code Generation Agent
+                    (e2e_code_generation_agent.md -- Step 0 Gate)
+                                             │
+                                             ▼
+                              Step 3.3: Quality Check Agent
+                               (e2e_quality_check_agent.md)
+                                             │
+                                             ▼
+                               Step 3.4: Test Executor Agent
+                   (e2e_test_executor_agent.md -- Step 0 Cross-Check)
+                                             │
+                                             ▼
+                               Step 4: Report Generation Agent
+                                (report_generation_agent.md)
+                                             │
+                                             ▼
+                                Step 5: PR Submitter Agent
+                                 (pr_submitter_agent.md)
+```
+
+### Agent Roles & Safeguards
+
+| Agent / Phase | Agent Specification | Primary Rule File | Key Safeguards & Quality Contracts |
+| :--- | :--- | :--- | :--- |
+| **Step 1: JIRA Extractor** | `config/agents/jira_extractor.md` | `config/rules/jira_extraction_rules.yaml` | Connects to Atlassian JIRA Cloud REST API; extracts ACs and metadata to `jira_data.json`. |
+| **Step 2: Test Case Generator** | `config/agents/test_case_generation.md` | `config/rules/e2e_rules/unified_test_generation_rules.yaml` | Maps ACs to test scenario specs (`{jira_issue_key}_test_cases.md`) and coverage matrix. |
+| **Step 3.1: Validation Agent** | `config/agents/e2e_validation_agent.md` | `config/rules/e2e_rules/e2e_validation_rules.yaml` | **Rule V1 (Evidence Citation)**: Requires `{file}:{line}` citations for assertions. **Rule V2 (Subtlety Audit)**: Flags broad/ambiguous locators as `AMBIGUOUS — NEEDS HUMAN REVIEW`. |
+| **Step 3.2: Code Generator** | `config/agents/e2e_code_generation_agent.md` | `config/rules/e2e_rules/e2e_test_case_guidelines_ts_pw.yaml` | **Step 0 Coverage Gate**: Skips `COVERED` scenarios. **Rule 9 (Framework Gap Contract)**: Halts and emits `framework_gap_report.md` if Page Objects lack required methods. |
+| **Step 3.3: Quality Check** | `config/agents/e2e_quality_check_agent.md` | `config/rules/e2e_rules/e2e_quality_check_rules.yaml` | Verifies `npm run type-check` (0 tsc errors) and `npm run lint` (0 ESLint custom rule errors). |
+| **Step 3.4: Test Executor** | `config/agents/e2e_test_executor_agent.md` | `config/rules/e2e_rules/e2e_test_executor_rules.yaml` | **Step 0 Cross-Check**: Downgrades verdict if validation flags exist. **Sanity Audit**: Verifies assertion counts (>0), test duration (>50ms), and negative step execution. |
+| **Step 4: Report Generator** | `config/agents/report_generation_agent.md` | `config/rules/e2e_rules/report_generation_rules.yaml` | **Rule R1 (Strict Status Synthesis)**: Downgrades status to `PASSED_WITH_WARNINGS` if any validation flags exist; mandates human review action items. |
+| **Step 5: PR Submitter** | `config/agents/pr_submitter_agent.md` | `config/rules/e2e_rules/pr_submitter_rules.yaml` | DevOps release automation. **Gate Hold**: Refuses to create branch or push code if report status is `BLOCKED`, `FAILED`, or `PASSED_WITH_WARNINGS`. |
+| **Master Orchestrator** | `config/agents/workflow_orchestrator.md` | `config/rules/workflow_orchestrator.yaml` | Sequences all agents with quality gates between phases. |
+

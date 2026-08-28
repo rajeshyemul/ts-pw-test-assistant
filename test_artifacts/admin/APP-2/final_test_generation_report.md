@@ -37,7 +37,7 @@ The AI test generation pipeline executed for **`APP-2`**. All 3 Acceptance Crite
   - `TC-APP-2-001` → **`COVERED`** (Cited [`tests/admin/APP-2.spec.ts:18`](file:///Users/rajesh.yemul/ts-pw-test-assistant/tests/admin/APP-2.spec.ts#L18))
   - `TC-APP-2-002` → **`AMBIGUOUS — NEEDS HUMAN REVIEW`**
     - **Citation**: [`tests/admin/APP-2.spec.ts:25`](file:///Users/rajesh.yemul/ts-pw-test-assistant/tests/admin/APP-2.spec.ts#L25) / [`src/pages/adminLoginPage.ts:94`](file:///Users/rajesh.yemul/ts-pw-test-assistant/src/pages/adminLoginPage.ts#L94)
-    - **Audit Evidence**: Assertion at `adminLoginPage.ts:94` checks element visibility on composite locator `ERROR_BANNER` (`.alert, div.alert, .alert-danger, [role='alert']`) without asserting explicit text content (`/invalid credentials/i`). Rule V2 and Rule R1 halt automatic greenlighting.
+    - **Audit Evidence**: Assertion at `adminLoginPage.ts:94` checks element visibility on composite locator `ERROR_BANNER` without asserting explicit text content (`/invalid credentials/i`). Rule V2 and Rule R1 halt automatic greenlighting.
 
 ---
 
@@ -55,6 +55,6 @@ The AI test generation pipeline executed for **`APP-2`**. All 3 Acceptance Crite
 
 > ⚠️ **ACTION REQUIRED BEFORE PR SUBMISSION**:
 > 1. **Resolve Ambiguous Assertion in `TC-APP-2-002`**:
->    In `src/pages/adminLoginPage.ts:94`, update `verifyInvalidCredentialsErrorVisible()` to add explicit text matching:
+>    In `src/pages/adminLoginPage.ts:94`, update `verifyInvalidCredentialsErrorVisible()` to add explicit text content matching:
 >    `await this.expectUtils.expectElementToContainText(AdminLoginPageLocators.ERROR_BANNER, "error banner", /invalid credentials/i);`
 > 2. **PR Submitter Gate**: `pr_submitter_agent` will **HOLD** pull request submission until this ambiguity is reviewed and resolved by a human engineer.
