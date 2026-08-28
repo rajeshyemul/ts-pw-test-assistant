@@ -1,6 +1,3 @@
----
-name: report_generation_agent
-description: Aggregate and synthesize all phase artifacts (JIRA data, test cases, coverage matrix, validation flags, framework gaps, execution results) into one comprehensive report for human stakeholders using strict Rule R1 status synthesis
 tools: Read, Write, Glob
 ---
 

@@ -22,7 +22,7 @@ The AI test generation pipeline executed for **`APP-2`**. All 3 Acceptance Crite
 | **AC2** | Invalid credentials display error banner feedback | `TC-APP-2-002` | `tests/admin/APP-2.spec.ts` | **`PARTIALLY VERIFIED (FLAGGED AMBIGUOUS)`** | **PASSED** (3.5s) |
 | **AC3** | Successful login redirects to `/admin/#/rooms` portal | `TC-APP-2-001` | `tests/admin/APP-2.spec.ts` | **`COVERED`** | **PASSED** (3.4s) |
 
-- **Acceptance Criteria Coverage**: **100% (3 / 3 ACs)**
+- **Acceptance Criteria Coverage**: **67% Fully Verified (2 / 3 ACs), 33% Flagged for Human Review (1 / 3 ACs)**
 - **Total E2E Test Cases**: 2 (`TC-APP-2-001`, `TC-APP-2-002`)
 
 ---
@@ -31,11 +31,13 @@ The AI test generation pipeline executed for **`APP-2`**. All 3 Acceptance Crite
 
 - **Type-Check Status (`npm run type-check`)**: **PASSED (0 Errors)**
 - **ESLint Status (`npm run lint`)**: **PASSED (0 Errors)**
+- **Ground-Truth Locator Inspection (`AdminLoginPageLocators.ts:6`)**:
+  - `static readonly ERROR_BANNER = ".alert, div.alert, .alert-danger, [role='alert']";`
 - **Validation Agent Audit (`e2e_validation_output.md`)**:
   - `TC-APP-2-001` → **`COVERED`** (Cited [`tests/admin/APP-2.spec.ts:18`](file:///Users/rajesh.yemul/ts-pw-test-assistant/tests/admin/APP-2.spec.ts#L18))
   - `TC-APP-2-002` → **`AMBIGUOUS — NEEDS HUMAN REVIEW`**
     - **Citation**: [`tests/admin/APP-2.spec.ts:25`](file:///Users/rajesh.yemul/ts-pw-test-assistant/tests/admin/APP-2.spec.ts#L25) / [`src/pages/adminLoginPage.ts:94`](file:///Users/rajesh.yemul/ts-pw-test-assistant/src/pages/adminLoginPage.ts#L94)
-    - **Audit Evidence**: Assertion at `adminLoginPage.ts:94` checks element visibility on composite/broad locator `ERROR_BANNER` (`.alert, div.alert, [role='alert']`) without asserting explicit text content (`/invalid credentials/i`). Rule V2 and Rule R1 halt automatic greenlighting.
+    - **Audit Evidence**: Assertion at `adminLoginPage.ts:94` checks element visibility on composite locator `ERROR_BANNER` (`.alert, div.alert, .alert-danger, [role='alert']`) without asserting explicit text content (`/invalid credentials/i`). Rule V2 and Rule R1 halt automatic greenlighting.
 
 ---
 
