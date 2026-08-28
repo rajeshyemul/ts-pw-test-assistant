@@ -1,10 +1,15 @@
-# E2E Test Executor Rules & Trace Sanity Audit Guidelines
+# E2E Test Executor Rules, Trace Sanity Audit & Cross-Agent Validation Guidelines
 
 framework_name: Playwright TypeScript Framework
 
 execution_rules:
   command: HEADLESS=true npx playwright test tests/{component}/{jira_issue_key}.spec.ts
   timeout: 60000
+
+cross_agent_validation_check:
+  input_file: test_artifacts/{component}/{jira_issue_key}/phases/e2e_validation_output.md
+  rule: If a scenario being executed is flagged as AMBIGUOUS or PARTIALLY_COVERED in e2e_validation_output.md, the executor MUST NOT report a "VERIFIED CLEAN" verdict even if exit code is 0.
+  enforcement: Downgrade verdict to PASSED_BUT_FLAGGED_AMBIGUOUS_BY_VALIDATION (citing file:line).
 
 sanity_audit_rules:
   rule_1_assertion_count:
@@ -18,4 +23,3 @@ sanity_audit_rules:
     enforcement: Flag negative tests lacking error step execution.
 
 output_artifact: test_artifacts/{component}/{jira_issue_key}/phases/e2e_execution_report.md
-

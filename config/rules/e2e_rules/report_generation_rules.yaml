@@ -1,0 +1,18 @@
+# Test Report Generation Rules & Synthesis Guidelines
+
+framework_name: Playwright TypeScript Framework
+
+status_determination:
+  PASSED: All ACs covered, 0 framework gaps, live execution passed with 0 validation flags.
+  PASSED_WITH_WARNINGS: Live execution passed, but e2e_validation_output.md flagged AMBIGUOUS or PARTIALLY_COVERED scenarios.
+  BLOCKED: Generation halted due to framework_gap_report.md.
+  FAILED: Live Playwright test execution failed.
+
+required_sections:
+  - Executive Summary & Pipeline Status Header
+  - Requirements & AC Coverage Summary Table
+  - Validation & Framework Gap Audit Section
+  - Live Playwright Execution Results & Trace Links
+  - Action Items for Human Reviewers
+
+output_artifact: test_artifacts/{component}/{jira_issue_key}/final_test_generation_report.md

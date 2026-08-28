@@ -1,0 +1,17 @@
+# PR Submitter Rules & Git Flow Guidelines
+
+framework_name: Playwright TypeScript Framework
+
+branch_naming_convention: feature/{jira_issue_key}-e2e-tests
+commit_convention: "feat(test): add Playwright E2E tests for {jira_issue_key}"
+
+preconditions:
+  require_file: test_artifacts/{component}/{jira_issue_key}/final_test_generation_report.md
+  allowed_statuses:
+    - PASSED
+    - PASSED_WITH_WARNINGS
+  prohibited_statuses:
+    - BLOCKED
+    - FAILED
+
+output_artifact: test_artifacts/{component}/{jira_issue_key}/phases/pr_submission_report.md
