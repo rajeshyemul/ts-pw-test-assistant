@@ -9,9 +9,10 @@ code_generation_rules:
     - Rule 3: Initialize Page Objects inside test.beforeEach(async ({ actions }) => { ... }).
     - Rule 4: Add descriptive tags to test titles (@smoke, @regression, @P1, @P2, and JIRA key e.g. @APP-2).
     - Rule 5: Incorporate AllureReporter step reporting (AllureReporter.step) and details metadata when available.
-    - Rule 6: Reuse existing Page Objects and fixture capabilities; do NOT invent unnecessary abstractions.
+    - Rule 6: Reuse existing Page Objects and fixture capabilities; do NOT invent unnecessary abstractions or guess selectors.
     - Rule 7 (SEMANTIC ASSERTION ENFORCEMENT): Every generated test MUST contain explicit, non-empty action steps and target assertions derived directly from its AC targets. A test MUST NOT consist solely of page navigation or setup steps matching another test.
-    - Rule 8 (NEGATIVE PATH ASSERTION): For negative path scenarios (e.g. invalid credentials, validation errors), the test body MUST perform the invalid input submission and assert on the resulting error banner/message (e.g. loginWithInvalidCredentials + verifyInvalidCredentialsErrorVisible).
+    - Rule 8 (NEGATIVE PATH ASSERTION): For negative path scenarios (e.g. invalid credentials, validation errors), the test body MUST perform the invalid input submission and assert on the resulting error feedback/banner (e.g. loginWithInvalidCredentials + verifyInvalidCredentialsErrorVisible).
+    - Rule 9 (FRAMEWORK GAP DETECTION CONTRACT): During pattern discovery, if a test scenario requires a Page Object method or locator that does NOT exist in src/pages/, the generator agent MUST NOT guess selectors or invent fake methods. It MUST halt execution and emit test_artifacts/{component}/{jira_issue_key}/phases/framework_gap_report.md detailing the exact Page Object capabilities missing.
 
 structure_conventions:
   test_suite_wrapper: test.describe("Feature Title (JIRA_KEY)", () => { ... })

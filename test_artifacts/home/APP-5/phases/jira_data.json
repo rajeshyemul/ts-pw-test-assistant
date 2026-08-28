@@ -1,0 +1,19 @@
+{
+  "jira_issue_key": "APP-5",
+  "summary": "Public Room Catalog & Availability Verification",
+  "component": "home",
+  "issue_type": "Story",
+  "priority": "Medium",
+  "status": "To Do",
+  "description": "As a guest user, I want to view the public room catalog on the home page so that I can see available rooms and prices.",
+  "acceptance_criteria": [
+    "AC1: Guest user can navigate to the public home page and view the room catalog.",
+    "AC2: Public room catalog displays populated room cards with prices and features."
+  ],
+  "affected_components": [
+    "homePage",
+    "BookingHomePageLocators"
+  ],
+  "comments": [],
+  "extracted_at": "2026-08-28T17:46:11.928Z"
+}

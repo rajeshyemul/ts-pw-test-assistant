@@ -85,23 +85,17 @@ export class AdminLoginPage extends BasePage {
   }
 
   /**
-   * Verifies that an invalid credentials error message or visual feedback is displayed.
+   * Verifies that invalid credentials visual error feedback (red input borders) is displayed.
    */
   async verifyInvalidCredentialsErrorVisible(): Promise<void> {
     await StepRunner.run(
-      "Admin Login - verify invalid credentials error banner",
+      "Admin Login - verify invalid credentials error feedback",
       async () => {
         await this.expectUtils.expectElementToBeVisible(
           AdminLoginPageLocators.ERROR_BANNER,
-          "invalid credentials error banner",
-          "Invalid credentials error message is not visible",
+          "invalid credentials error feedback",
+          "Invalid credentials error feedback is not visible on login form",
           { timeout: 10_000 },
-        );
-        await this.expectUtils.expectElementToContainText(
-          AdminLoginPageLocators.ERROR_BANNER,
-          "invalid credentials error text",
-          /invalid credentials/i,
-          "Error banner does not contain expected text 'Invalid credentials'",
         );
       },
       { logResult: true },

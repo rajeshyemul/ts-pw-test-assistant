@@ -1,0 +1,18 @@
+{
+  "jira_issue_key": "APP-6",
+  "summary": "Admin User Password Reset via Security Question",
+  "component": "admin",
+  "issue_type": "Story",
+  "priority": "High",
+  "status": "To Do",
+  "description": "As an admin user, I want to reset my password using a security question if I forget it.",
+  "acceptance_criteria": [
+    "AC1: Admin user clicks Forgot Password link on admin login form.",
+    "AC2: Admin enters registered email and security answer to request password reset."
+  ],
+  "affected_components": [
+    "adminLoginPage"
+  ],
+  "extracted_at": "2026-08-28T23:26:45.000Z"
+}
+

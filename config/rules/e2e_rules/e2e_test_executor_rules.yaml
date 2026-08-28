@@ -1,0 +1,21 @@
+# E2E Test Executor Rules & Trace Sanity Audit Guidelines
+
+framework_name: Playwright TypeScript Framework
+
+execution_rules:
+  command: HEADLESS=true npx playwright test tests/{component}/{jira_issue_key}.spec.ts
+  timeout: 60000
+
+sanity_audit_rules:
+  rule_1_assertion_count:
+    description: Every passing test MUST log at least 1 explicit assertion step (expectUtils).
+    enforcement: If test passes with 0 assertion steps, flag as PASSED_WITH_SANITY_WARNING (Possible False Positive).
+  rule_2_duration_threshold:
+    description: Tests must not short-circuit or complete faster than minimum page load threshold (50ms).
+    enforcement: Flag tests under 50ms as SUSPICIOUS_SHORT_CIRCUIT.
+  rule_3_negative_path_verification:
+    description: Negative tests must log error submission and error locator verification.
+    enforcement: Flag negative tests lacking error step execution.
+
+output_artifact: test_artifacts/{component}/{jira_issue_key}/phases/e2e_execution_report.md
+

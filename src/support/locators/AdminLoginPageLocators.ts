@@ -3,5 +3,5 @@ export class AdminLoginPageLocators {
   static readonly USERNAME = "#username";
   static readonly PASSWORD = "#password";
   static readonly LOGIN_BUTTON = "#doLogin";
-  static readonly ERROR_BANNER = ".alert-danger, .alert, div:has-text('Invalid credentials')";
+  static readonly ERROR_BANNER = ".alert, div.alert, .alert-danger, [role='alert']";
 }

@@ -1,4 +1,4 @@
-# E2E Validation Rules (Multi-Signal Search & Classification)
+# E2E Validation Rules (Multi-Signal Search, Evidence Citing & Assertion-Based Classification)
 
 framework_name: Playwright TypeScript Framework
 
@@ -8,15 +8,21 @@ multi_signal_search:
     - TEST_CASE_ID: Search tests/ for Test IDs (e.g. TC-APP-2-001)
     - SCENARIO_KEYWORDS: Search tests/ for action keywords (e.g. login, valid credentials, redirect)
     - PAGE_OBJECT_TERMINOLOGY: Search tests/ for Page Object names (e.g. AdminLoginPage, AdminRoomsPage)
-    - FEATURE_TERMINOLOGY: Search tests/ for feature names
+    - FEATURE_TERMINOLOGY: Search tests/ for feature/domain terms from ticket summary
 
-coverage_classification_states:
-  - state: COVERED
-    criteria: Existing test genuinely covers the scenario, steps, and assertions completely.
-  - state: PARTIALLY_COVERED
-    criteria: Existing test covers part of the scenario but misses specific assertions/conditions.
-  - state: NOT_COVERED
-    criteria: No meaningful existing test found for the scenario.
+rules:
+  V1_evidence_requirement:
+    rule: Every COVERED or PARTIALLY COVERED classification MUST cite {file}:{line} for both matched test and specific assertion evaluated.
+    enforcement: Any classification lacking file/line citation MUST be downgraded to NOT COVERED pending human review.
+
+  V2_no_silent_assumptions:
+    rule: If a match is found but the assertion is ambiguous, unreadable, or opaque, mark as AMBIGUOUS — NEEDS HUMAN REVIEW.
+    enforcement: DO NOT guess a classification. Halt resolution and delegate to human review.
+
+classification_criteria:
+  COVERED: Existing test performs same steps AND asserts same outcome. Must cite file, line range, and assertion line.
+  PARTIALLY_COVERED: Existing test covers steps but assertion is missing or insufficient (e.g. checks visibility instead of content). Must cite test and name missing assertion.
+  NOT_COVERED: No existing test file or block addresses this scenario.
+  AMBIGUOUS: Match found via signals but assertion logic cannot be confidently verified.
 
 output_artifact: test_artifacts/{component}/{jira_issue_key}/phases/e2e_validation_output.md
-
