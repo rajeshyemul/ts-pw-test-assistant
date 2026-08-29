@@ -15,16 +15,16 @@
 - **Total Tests Executed**: 2
 - **Passed**: 2 | **Failed**: 0 | **Skipped**: 0
 - **Total Duration**: 5.2s
-- **Overall Status**: **`PASSED`** (Sanity Audit Verified)
+- **Overall Status**: **`PASSED WITH VALIDATION FLAGS`** (Enforced under Step 0 Cross-Check)
 
 ---
 
 ## 2. Test Breakdown & Trace Sanity Audit
 
-| Test Title | Status | Duration | Assertions Executed | Negative Path Action Verified | Sanity Audit Result |
+| Test Title | Status | Duration | Assertions Executed | Negative Path Action Verified | Sanity Audit & Cross-Check Result |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Successful Admin Login and Redirect to Rooms Portal** (`@smoke @P1`) | **PASSED** | 3.4s | 6 assertion steps | N/A (Positive Path) | **VERIFIED CLEAN** |
-| **Invalid Admin Credentials Error Banner Validation** (`@regression @P2`) | **PASSED** | 3.5s | 5 assertion steps | YES (`loginWithInvalidCredentials` + 401 response logged) | **VERIFIED CLEAN** |
+| **Invalid Admin Credentials Error Banner Validation** (`@regression @P2`) | **PASSED** | 3.5s | 5 assertion steps | YES (`loginWithInvalidCredentials` + 401 response logged) | **PASSED (FLAGGED AMBIGUOUS BY VALIDATION AGENT — SEE AdminLoginPage.ts:94)** |
 
 ---
 
@@ -48,4 +48,3 @@
 
 - **Trace Artifact**: `reports/artifacts/admin-APP-2-Admin-Login-Au-08b81-idation-regression-P2-APP-2-framework-chromium/trace.zip`
 - **Step Runner Logs**: `reports/artifacts/admin-APP-2-.../`
-
