@@ -1,5 +1,10 @@
 # ts-pw-test-assistant
 
+![Playwright](https://img.shields.io/badge/Playwright-1.x-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
+![AI](https://img.shields.io/badge/AI-Agentic_Test_Generation-purple)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 An artifact-driven, multi-agent AI Quality Engineering system built on Playwright + TypeScript.
 
 This repository is the practical implementation platform for:
